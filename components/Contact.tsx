@@ -7,7 +7,14 @@ const Contact: React.FC = () => {
         <h2 className="text-3xl font-bold text-gray-800 text-center mb-2">Ready to Get Started?</h2>
         <p className="text-lg text-gray-500 text-center mb-12 max-w-2xl mx-auto">Send us your document for a free, no-obligation quote. We'll get back to you within the hour.</p>
         <div className="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-lg">
-          <form action="https://formspree.io/f/YOUR_UNIQUE_ID" method="POST" encType="multipart/form-data">
+          {/* 
+            ACTION REQUIRED: Replace 'YOUR_UNIQUE_ID' with your actual Formspree form ID.
+            1. Go to https://formspree.io/
+            2. Create a new form.
+            3. Copy the endpoint URL (e.g., https://formspree.io/f/xxxxxxxx)
+            4. Replace the entire URL below with yours.
+          */}
+          <form action="https://formspree.io/f/xqalgkvl" method="POST" encType="multipart/form-data">
             <div className="mb-4">
               <label htmlFor="name" className="block text-gray-700 font-semibold mb-2">Your Name</label>
               <input type="text" id="name" name="name" className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
