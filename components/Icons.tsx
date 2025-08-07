@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 const iconClasses = "w-12 h-12 mx-auto mb-4 text-blue-600";

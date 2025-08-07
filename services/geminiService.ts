@@ -1,46 +1,68 @@
-
-import { GoogleGenAI } from "@google/genai";
-
-const apiKey = process.env.API_KEY;
-if (!apiKey) {
-  console.error("API_KEY environment variable not set. Please ensure it is configured.");
-}
-
-const ai = new GoogleGenAI({ apiKey: apiKey || '' });
+const handleApiResponse = async (response: Response): Promise<string> => {
+    const data = await response.json();
+    if (!response.ok) {
+        // Use the error from the API response, or a default message
+        return `Error: ${data.error || response.statusText}`;
+    }
+    return data.result;
+};
 
 export const summarizeText = async (text: string): Promise<string> => {
-  if (!apiKey) {
-    return "Error: API key is not configured. Please contact the site administrator.";
-  }
-  
   if (!text.trim()) {
     return "Please enter some text to summarize.";
   }
 
   try {
-    const model = "gemini-2.5-flash";
-    const prompt = `Summarize the following text concisely. The text is:\n\n---\n${text}\n---\n\nSummary:`;
-    
-    const response = await ai.models.generateContent({
-      model: model,
-      contents: prompt,
+    const response = await fetch('/api/summarize', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
     });
-
-    const summary = response.text;
-    
-    if (!summary) {
-      return "Could not generate a summary. The response was empty.";
-    }
-    
-    return summary;
+    return handleApiResponse(response);
   } catch (error) {
-    console.error("Error summarizing text with Gemini API:", error);
-    if (error instanceof Error) {
-        if (error.message.includes('API key not valid')) {
-            return "An error occurred: The API key is not valid. Please check the server configuration.";
-        }
-        return `An error occurred while generating the summary: ${error.message}`;
-    }
-    return "An unknown error occurred while generating the summary.";
+    console.error("Network or other error calling /api/summarize:", error);
+    return "An error occurred: Could not connect to the summarization service.";
+  }
+};
+
+export const translateText = async (text: string, language: string): Promise<string> => {
+  if (!text.trim()) {
+    return "Please enter some text to translate.";
+  }
+
+  try {
+    const response = await fetch('/api/translate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text, language }),
+    });
+    return handleApiResponse(response);
+  } catch (error) {
+    console.error("Network or other error calling /api/translate:", error);
+    return "An error occurred: Could not connect to the translation service.";
+  }
+};
+
+export const generateImage = async (prompt: string): Promise<string> => {
+  if (!prompt.trim()) {
+    return "Please enter a prompt to generate an image.";
+  }
+
+  try {
+    const response = await fetch('/api/generate-image', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt }),
+    });
+    return handleApiResponse(response);
+  } catch (error) {
+    console.error("Network or other error calling /api/generate-image:", error);
+    return "An error occurred: Could not connect to the image generation service.";
   }
 };

@@ -1,13 +1,14 @@
-
 import React from 'react';
 import ServiceCard from './ServiceCard';
 import { CertifiedIcon, InterpretingIcon, VoiceOverIcon, AiIcon } from './Icons';
 
 interface ServicesProps {
-  onDemoClick: () => void;
+  onSummarizeDemoClick: () => void;
+  onTranslateDemoClick: () => void;
+  onImageDemoClick: () => void;
 }
 
-const Services: React.FC<ServicesProps> = ({ onDemoClick }) => {
+const Services: React.FC<ServicesProps> = ({ onSummarizeDemoClick, onTranslateDemoClick, onImageDemoClick }) => {
   const services = [
     {
       icon: <CertifiedIcon />,
@@ -28,7 +29,6 @@ const Services: React.FC<ServicesProps> = ({ onDemoClick }) => {
       icon: <AiIcon />,
       title: 'AI Content Services',
       description: 'Leverage our AI tools for content summarization, multilingual chatbots, and internal knowledge base management.',
-      action: onDemoClick,
     },
   ];
 
@@ -47,13 +47,27 @@ const Services: React.FC<ServicesProps> = ({ onDemoClick }) => {
               title={service.title}
               description={service.description}
               actionButton={
-                service.action ? (
-                  <button
-                    onClick={service.action}
-                    className="bg-blue-100 text-blue-700 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors"
-                  >
-                    Try Summarization Demo
-                  </button>
+                service.title === 'AI Content Services' ? (
+                  <div className="flex flex-col space-y-2">
+                    <button
+                      onClick={onSummarizeDemoClick}
+                      className="bg-blue-100 text-blue-700 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors w-full"
+                    >
+                      Try Summarization Demo
+                    </button>
+                    <button
+                      onClick={onTranslateDemoClick}
+                      className="bg-teal-100 text-teal-700 font-semibold px-4 py-2 rounded-lg hover:bg-teal-200 transition-colors w-full"
+                    >
+                      Try Translation Demo
+                    </button>
+                    <button
+                      onClick={onImageDemoClick}
+                      className="bg-purple-100 text-purple-700 font-semibold px-4 py-2 rounded-lg hover:bg-purple-200 transition-colors w-full"
+                    >
+                      Try Image Generation Demo
+                    </button>
+                  </div>
                 ) : undefined
               }
             />
