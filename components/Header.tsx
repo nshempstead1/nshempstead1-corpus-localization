@@ -5,7 +5,7 @@ const Header: React.FC = () => {
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <nav className="container mx-auto px-6 py-3 flex justify-between items-center">
         <div className="flex items-center">
-          <img src="https://i.imgur.com/F07H8dG.jpg" alt="Corpus AI Logo" className="h-10 mr-3" />
+          <img src="https://i.imgur.com/8z2dK2c.png" alt="Corpus AI Logo" className="h-10 mr-3" />
           <span className="text-2xl font-bold text-gray-800">Corpus AI</span>
         </div>
         <div>
