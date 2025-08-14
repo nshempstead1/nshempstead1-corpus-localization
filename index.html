@@ -706,11 +706,12 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="payment-option">Payment Option *</label>
+                        <label for="payment-option">Service Option *</label>
                         <select id="payment-option" name="payment-option" required onchange="togglePaymentFields()">
-                            <option value="">Select payment option</option>
+                            <option value="">Select service option</option>
                             <option value="pay-per-page">Pay Per Page ($24.95/page) - USCIS Certified</option>
-                            <option value="quote-per-word">Request Quote ($0.10/word) - Standard Translation</option>
+                            <option value="quote-per-word">Request Quote ($0.08/word) - Standard Translation</option>
+                            <option value="custom-quote">Submit Documents for Custom Quote - Same Day Response</option>
                         </select>
                     </div>
                     
@@ -800,12 +801,28 @@
                         <label for="word-count-estimate">Estimated Word Count</label>
                         <select id="word-count-estimate" name="word-count-estimate">
                             <option value="">Select estimated word count</option>
-                            <option value="under-250">Under 250 words</option>
-                            <option value="250-500">250-500 words</option>
-                            <option value="500-1000">500-1,000 words</option>
-                            <option value="1000-2500">1,000-2,500 words</option>
-                            <option value="2500-5000">2,500-5,000 words</option>
-                            <option value="over-5000">Over 5,000 words</option>
+                            <option value="under-250">Under 250 words (~$20)</option>
+                            <option value="250-500">250-500 words (~$20-40)</option>
+                            <option value="500-1000">500-1,000 words (~$40-80)</option>
+                            <option value="1000-2500">1,000-2,500 words (~$80-200)</option>
+                            <option value="2500-5000">2,500-5,000 words (~$200-400)</option>
+                            <option value="over-5000">Over 5,000 words (custom quote)</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Fields for Custom Quote with Document Upload -->
+                    <div class="form-group" id="upload-group" style="display: none;">
+                        <label for="document-upload">Upload Documents for Quote</label>
+                        <input type="file" id="document-upload" name="document-upload" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
+                        <small style="color: #666; font-size: 0.9rem;">Accepted formats: PDF, Word, Images, Text files. Max 10MB per file.</small>
+                    </div>
+                    
+                    <div class="form-group" id="project-type-group" style="display: none;">
+                        <label for="project-type">Project Type</label>
+                        <select id="project-type" name="project-type">
+                            <option value="word-based">Word-based pricing ($0.08/word)</option>
+                            <option value="project-based">Project-based custom estimate</option>
+                            <option value="bulk-discount">Bulk/volume discount inquiry</option>
                         </select>
                     </div>
                     
@@ -829,7 +846,7 @@
                     
                     <div class="form-group full-width">
                         <label for="special-instructions">Project Details & Special Instructions</label>
-                        <textarea id="special-instructions" name="special-instructions" placeholder="Please describe your project, any special formatting requirements, or attach file details. For document upload, we'll provide secure upload instructions after form submission..."></textarea>
+                        <textarea id="special-instructions" name="special-instructions" placeholder="Please describe your project, any special formatting requirements, urgency, or specific instructions. For document upload quotes, we'll provide detailed estimates same day..."></textarea>
                     </div>
                     
                     <!-- Price Display -->
@@ -943,15 +960,25 @@
             const deliverySpeedGroup = document.getElementById('delivery-speed-group');
             const certificationGroup = document.getElementById('certification-type-group');
             const wordCountGroup = document.getElementById('word-count-group');
+            const uploadGroup = document.getElementById('upload-group');
+            const projectTypeGroup = document.getElementById('project-type-group');
             const priceDisplay = document.getElementById('price-display');
             const submitButton = document.getElementById('submit-button');
+            
+            // Hide all conditional groups first
+            pageCountGroup.style.display = 'none';
+            deliverySpeedGroup.style.display = 'none';
+            certificationGroup.style.display = 'none';
+            wordCountGroup.style.display = 'none';
+            uploadGroup.style.display = 'none';
+            projectTypeGroup.style.display = 'none';
+            priceDisplay.style.display = 'none';
             
             if (paymentOption === 'pay-per-page') {
                 // Show per-page fields
                 pageCountGroup.style.display = 'block';
                 deliverySpeedGroup.style.display = 'block';
                 certificationGroup.style.display = 'block';
-                wordCountGroup.style.display = 'none';
                 priceDisplay.style.display = 'block';
                 submitButton.textContent = 'Pay Now & Start Translation';
                 
@@ -962,26 +989,33 @@
                 
             } else if (paymentOption === 'quote-per-word') {
                 // Show per-word fields
-                pageCountGroup.style.display = 'none';
-                deliverySpeedGroup.style.display = 'none';
-                certificationGroup.style.display = 'none';
                 wordCountGroup.style.display = 'block';
-                priceDisplay.style.display = 'none';
-                submitButton.textContent = 'Request Custom Quote';
+                submitButton.textContent = 'Request Word-Based Quote ($0.08/word)';
                 
                 // Make per-word fields required
                 document.getElementById('page-count').required = false;
                 document.getElementById('certification-type').required = false;
                 document.getElementById('word-count-estimate').required = false;
                 
+            } else if (paymentOption === 'custom-quote') {
+                // Show custom quote fields
+                uploadGroup.style.display = 'block';
+                projectTypeGroup.style.display = 'block';
+                submitButton.textContent = 'Submit Documents for Same-Day Quote';
+                
+                // Reset requirements
+                document.getElementById('page-count').required = false;
+                document.getElementById('certification-type').required = false;
+                document.getElementById('word-count-estimate').required = false;
+                
             } else {
-                // Hide all conditional fields
-                pageCountGroup.style.display = 'none';
-                deliverySpeedGroup.style.display = 'none';
-                certificationGroup.style.display = 'none';
-                wordCountGroup.style.display = 'none';
-                priceDisplay.style.display = 'none';
+                // Default state
                 submitButton.textContent = 'Get USCIS Certified Translation - Starting $24.95';
+                
+                // Reset all requirements
+                document.getElementById('page-count').required = false;
+                document.getElementById('certification-type').required = false;
+                document.getElementById('word-count-estimate').required = false;
             }
             
             calculateTotal();
