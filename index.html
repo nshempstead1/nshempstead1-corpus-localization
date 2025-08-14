@@ -70,9 +70,11 @@
             justify-content: center;
         }
 
-        .logo-svg {
+        .logo-img {
             width: 55px;
-            height: 55px;
+            height: auto;
+            object-fit: contain;
+            max-height: 55px;
         }
 
         .nav-links {
@@ -501,81 +503,7 @@
         <nav class="container">
             <div class="logo">
                 <div class="logo-icon">
-                    <svg class="logo-svg" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <!-- Gradients for the flowing elements -->
-                            <linearGradient id="blueFlow" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#4FC3F7"/>
-                                <stop offset="50%" style="stop-color:#29B6F6"/>
-                                <stop offset="100%" style="stop-color:#0288D1"/>
-                            </linearGradient>
-                            <linearGradient id="greenFlow" x1="0%" y1="100%" x2="100%" y2="0%">
-                                <stop offset="0%" style="stop-color:#81C784"/>
-                                <stop offset="50%" style="stop-color:#66BB6A"/>
-                                <stop offset="100%" style="stop-color:#4CAF50"/>
-                            </linearGradient>
-                            <!-- Globe gradient -->
-                            <radialGradient id="globeGrad" cx="50%" cy="40%">
-                                <stop offset="0%" style="stop-color:#E8F5E8"/>
-                                <stop offset="100%" style="stop-color:#C8E6C9"/>
-                            </radialGradient>
-                        </defs>
-                        
-                        <!-- Background diamond shape -->
-                        <path d="M200 50 L320 150 L200 250 L80 150 Z" fill="url(#blueFlow)" opacity="0.9" transform="rotate(-10 200 150)"/>
-                        <path d="M200 60 L310 150 L200 240 L90 150 Z" fill="url(#greenFlow)" opacity="0.8" transform="rotate(10 200 150)"/>
-                        
-                        <!-- Flowing data streams (top) -->
-                        <g opacity="0.8">
-                            <!-- Blue streams -->
-                            <circle cx="80" cy="70" r="3" fill="#29B6F6"/>
-                            <circle cx="90" cy="75" r="2" fill="#42A5F5"/>
-                            <circle cx="100" cy="80" r="1.5" fill="#64B5F6"/>
-                            <path d="M105 85 Q140 90 170 85" stroke="#29B6F6" stroke-width="2" fill="none" opacity="0.7"/>
-                            
-                            <!-- More flowing elements -->
-                            <circle cx="110" cy="60" r="2.5" fill="#0288D1"/>
-                            <circle cx="120" cy="65" r="1.8" fill="#0277BD"/>
-                            <circle cx="130" cy="68" r="1.2" fill="#01579B"/>
-                        </g>
-                        
-                        <!-- Central globe -->
-                        <circle cx="200" cy="150" r="45" fill="url(#globeGrad)" stroke="#4CAF50" stroke-width="2"/>
-                        
-                        <!-- Continents on globe -->
-                        <g transform="translate(200,150)">
-                            <!-- Americas -->
-                            <path d="M-15 -20 Q-10 -15 -12 -5 Q-8 0 -10 10 Q-5 15 -8 20 L-18 18 Q-20 10 -18 0 Q-22 -10 -18 -18 Z" fill="#2E7D32"/>
-                            <!-- Europe/Africa -->
-                            <path d="M5 -25 Q15 -20 12 -10 Q18 -5 15 5 Q20 15 12 25 L8 22 Q5 15 8 5 Q3 0 6 -10 Q0 -18 5 -25 Z" fill="#388E3C"/>
-                            <!-- Asia -->
-                            <path d="M25 -15 Q35 -10 32 0 Q38 10 30 20 L25 18 Q22 10 25 0 Q20 -8 25 -15 Z" fill="#43A047"/>
-                        </g>
-                        
-                        <!-- Flowing data streams (bottom) -->
-                        <g opacity="0.8">
-                            <!-- Green streams -->
-                            <circle cx="320" cy="230" r="3" fill="#66BB6A"/>
-                            <circle cx="310" cy="235" r="2" fill="#81C784"/>
-                            <circle cx="300" cy="240" r="1.5" fill="#A5D6A7"/>
-                            <path d="M295 245 Q260 250 230 245" stroke="#66BB6A" stroke-width="2" fill="none" opacity="0.7"/>
-                            
-                            <!-- More flowing elements -->
-                            <circle cx="290" cy="220" r="2.5" fill="#4CAF50"/>
-                            <circle cx="280" cy="225" r="1.8" fill="#388E3C"/>
-                            <circle cx="270" cy="228" r="1.2" fill="#2E7D32"/>
-                        </g>
-                        
-                        <!-- Additional scattered dots -->
-                        <g opacity="0.6">
-                            <circle cx="60" cy="120" r="1.5" fill="#29B6F6"/>
-                            <circle cx="340" cy="180" r="1.5" fill="#66BB6A"/>
-                            <circle cx="70" cy="200" r="1" fill="#4CAF50"/>
-                            <circle cx="330" cy="120" r="1" fill="#0288D1"/>
-                            <circle cx="85" cy="90" r="0.8" fill="#42A5F5"/>
-                            <circle cx="315" cy="210" r="0.8" fill="#81C784"/>
-                        </g>
-                    </svg>
+                    <img src="corpus-logo.png" alt="Corpus Localization Logo" class="logo-img">
                 </div>
                 Corpus Localization
             </div>
@@ -602,8 +530,9 @@
         <div class="container">
             <h3>🏆 USCIS Guaranteed • 100% Acceptance Rate • 24/7 Support</h3>
             <div class="trust-logos">
+                <span>USCIS Certified</span>
                 <span>•</span>
-                <span>Sworn Certified Translations</span>
+                <span>Professional Certified</span>
                 <span>•</span>
                 <span>Same-Day Service</span>
                 <span>•</span>
@@ -932,7 +861,7 @@
                 <div class="footer-section">
                     <h3>Contact & Support</h3>
                     <p>📧 info@corpuslocalization.com</p>
-                    <p>📞 +1 (973) 803-2795</p>
+                    <p>📞 +1 (555) 123-4567</p>
                     <p>🕒 24/7 Customer Support</p>
                     <p>💬 Live Chat Available</p>
                 </div>
@@ -946,6 +875,7 @@
                 <div class="footer-section">
                     <h3>Quality & Guarantees</h3>
                     <p>🏆 100% USCIS Acceptance Rate</p>
+                    <p>📋 Professional Certification</p>
                     <p>💰 Money-Back Guarantee</p>
                     <p>🔒 Secure Document Handling</p>
                 </div>
@@ -979,7 +909,7 @@
         // Form submission handling
         document.querySelector('.quote-form').addEventListener('submit', function(e) {
             // Let Netlify handle the form submission
-            console.log('Professional translation quote form submitted');
+            console.log('USCIS translation quote form submitted');
         });
 
         // Add some interactivity to the stats section
