@@ -685,8 +685,9 @@
             <h2 class="section-title">Get Your USCIS Certified Translation</h2>
             <p class="section-subtitle">Upload your documents and receive a professional quote instantly. Most 1-3 page documents delivered within 24 hours for just $24.95 per page.</p>
             
-            <form class="quote-form" method="POST" netlify>
+            <form class="quote-form" method="POST" netlify netlify-honeypot="bot-field" action="/thank-you">
                 <input type="hidden" name="form-name" value="uscis-translation-request">
+                <input type="hidden" name="bot-field">
                 
                 <div class="form-grid">
                     <div class="form-group">
@@ -705,6 +706,15 @@
                     </div>
                     
                     <div class="form-group">
+                        <label for="payment-option">Payment Option *</label>
+                        <select id="payment-option" name="payment-option" required onchange="togglePaymentFields()">
+                            <option value="">Select payment option</option>
+                            <option value="pay-per-page">Pay Per Page ($24.95/page) - USCIS Certified</option>
+                            <option value="quote-per-word">Request Quote ($0.10/word) - Standard Translation</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="document-type-group">
                         <label for="document-type">Document Type *</label>
                         <select id="document-type" name="document-type" required>
                             <option value="">Select document type</option>
@@ -754,9 +764,10 @@
                         </select>
                     </div>
                     
-                    <div class="form-group">
+                    <!-- Fields for Per-Page Payment -->
+                    <div class="form-group" id="page-count-group" style="display: none;">
                         <label for="page-count">Number of Pages *</label>
-                        <select id="page-count" name="page-count" required>
+                        <select id="page-count" name="page-count" onchange="calculateTotal()">
                             <option value="">Select page count</option>
                             <option value="1">1 page - $24.95</option>
                             <option value="2">2 pages - $49.90</option>
@@ -767,20 +778,34 @@
                         </select>
                     </div>
                     
-                    <div class="form-group">
+                    <div class="form-group" id="delivery-speed-group" style="display: none;">
                         <label for="delivery-speed">Delivery Speed</label>
-                        <select id="delivery-speed" name="delivery-speed">
+                        <select id="delivery-speed" name="delivery-speed" onchange="calculateTotal()">
                             <option value="standard">Standard (24 hours) - Included</option>
                             <option value="rush">Rush (12 hours) - +50%</option>
                             <option value="same-day">Same Day (2-6 hours) - +100%</option>
                         </select>
                     </div>
                     
-                    <div class="form-group">
+                    <div class="form-group" id="certification-type-group" style="display: none;">
                         <label for="certification-type">Certification Type *</label>
-                        <select id="certification-type" name="certification-type" required>
+                        <select id="certification-type" name="certification-type" onchange="calculateTotal()">
                             <option value="standard-certified">Standard Certified Translation</option>
                             <option value="notarized">Notarized Translation (+$15)</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Fields for Per-Word Quote -->
+                    <div class="form-group" id="word-count-group" style="display: none;">
+                        <label for="word-count-estimate">Estimated Word Count</label>
+                        <select id="word-count-estimate" name="word-count-estimate">
+                            <option value="">Select estimated word count</option>
+                            <option value="under-250">Under 250 words</option>
+                            <option value="250-500">250-500 words</option>
+                            <option value="500-1000">500-1,000 words</option>
+                            <option value="1000-2500">1,000-2,500 words</option>
+                            <option value="2500-5000">2,500-5,000 words</option>
+                            <option value="over-5000">Over 5,000 words</option>
                         </select>
                     </div>
                     
@@ -792,16 +817,8 @@
                             <option value="employment">Employment Verification</option>
                             <option value="legal-proceeding">Legal Proceeding</option>
                             <option value="personal-use">Personal Use</option>
+                            <option value="business-use">Business Use</option>
                             <option value="other">Other</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="delivery-method">Delivery Method</label>
-                        <select id="delivery-method" name="delivery-method">
-                            <option value="email">Email (Digital) - Free</option>
-                            <option value="mail">Physical Mail - +$5</option>
-                            <option value="express-mail">Express Mail - +$15</option>
                         </select>
                     </div>
                     
@@ -811,12 +828,19 @@
                     </div>
                     
                     <div class="form-group full-width">
-                        <label for="special-instructions">Special Instructions</label>
-                        <textarea id="special-instructions" name="special-instructions" placeholder="Any special formatting requirements, urgent deadlines, or specific instructions for your USCIS translation..."></textarea>
+                        <label for="special-instructions">Project Details & Special Instructions</label>
+                        <textarea id="special-instructions" name="special-instructions" placeholder="Please describe your project, any special formatting requirements, or attach file details. For document upload, we'll provide secure upload instructions after form submission..."></textarea>
+                    </div>
+                    
+                    <!-- Price Display -->
+                    <div class="form-group full-width" id="price-display" style="display: none;">
+                        <div style="background: var(--light-cyan); color: white; padding: 1rem; border-radius: 10px; text-align: center; font-size: 1.2rem; font-weight: bold;">
+                            <span id="total-price">Total: $0.00</span>
+                        </div>
                     </div>
                 </div>
                 
-                <button type="submit" class="submit-btn">Get USCIS Certified Translation - Starting $24.95</button>
+                <button type="submit" class="submit-btn" id="submit-button">Get USCIS Certified Translation - Starting $24.95</button>
             </form>
         </div>
     </section>
@@ -911,6 +935,93 @@
             // Let Netlify handle the form submission
             console.log('USCIS translation quote form submitted');
         });
+
+        // Dynamic form handling
+        function togglePaymentFields() {
+            const paymentOption = document.getElementById('payment-option').value;
+            const pageCountGroup = document.getElementById('page-count-group');
+            const deliverySpeedGroup = document.getElementById('delivery-speed-group');
+            const certificationGroup = document.getElementById('certification-type-group');
+            const wordCountGroup = document.getElementById('word-count-group');
+            const priceDisplay = document.getElementById('price-display');
+            const submitButton = document.getElementById('submit-button');
+            
+            if (paymentOption === 'pay-per-page') {
+                // Show per-page fields
+                pageCountGroup.style.display = 'block';
+                deliverySpeedGroup.style.display = 'block';
+                certificationGroup.style.display = 'block';
+                wordCountGroup.style.display = 'none';
+                priceDisplay.style.display = 'block';
+                submitButton.textContent = 'Pay Now & Start Translation';
+                
+                // Make per-page fields required
+                document.getElementById('page-count').required = true;
+                document.getElementById('certification-type').required = true;
+                document.getElementById('word-count-estimate').required = false;
+                
+            } else if (paymentOption === 'quote-per-word') {
+                // Show per-word fields
+                pageCountGroup.style.display = 'none';
+                deliverySpeedGroup.style.display = 'none';
+                certificationGroup.style.display = 'none';
+                wordCountGroup.style.display = 'block';
+                priceDisplay.style.display = 'none';
+                submitButton.textContent = 'Request Custom Quote';
+                
+                // Make per-word fields required
+                document.getElementById('page-count').required = false;
+                document.getElementById('certification-type').required = false;
+                document.getElementById('word-count-estimate').required = false;
+                
+            } else {
+                // Hide all conditional fields
+                pageCountGroup.style.display = 'none';
+                deliverySpeedGroup.style.display = 'none';
+                certificationGroup.style.display = 'none';
+                wordCountGroup.style.display = 'none';
+                priceDisplay.style.display = 'none';
+                submitButton.textContent = 'Get USCIS Certified Translation - Starting $24.95';
+            }
+            
+            calculateTotal();
+        }
+
+        // Price calculator
+        function calculateTotal() {
+            const paymentOption = document.getElementById('payment-option').value;
+            
+            if (paymentOption === 'pay-per-page') {
+                const pageCount = document.getElementById('page-count').value;
+                const deliverySpeed = document.getElementById('delivery-speed').value;
+                const certificationType = document.getElementById('certification-type').value;
+                
+                let basePrice = 0;
+                let multiplier = 1;
+                let addOns = 0;
+                
+                // Base price calculation
+                if (pageCount === '1') basePrice = 24.95;
+                else if (pageCount === '2') basePrice = 49.90;
+                else if (pageCount === '3') basePrice = 74.85;
+                else if (pageCount === '4') basePrice = 99.80;
+                else if (pageCount === '5') basePrice = 124.75;
+                else if (pageCount === '6+') {
+                    document.getElementById('total-price').textContent = 'Contact for Quote';
+                    return;
+                }
+                
+                // Delivery speed multiplier
+                if (deliverySpeed === 'rush') multiplier = 1.5;
+                else if (deliverySpeed === 'same-day') multiplier = 2.0;
+                
+                // Add-ons
+                if (certificationType === 'notarized') addOns += 15;
+                
+                const total = (basePrice * multiplier) + addOns;
+                document.getElementById('total-price').textContent = `Total: ${total.toFixed(2)}`;
+            }
+        }
 
         // Add some interactivity to the stats section
         const observerOptions = {
