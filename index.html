@@ -880,14 +880,25 @@
                         </div>
                         
                         <div style="display: flex; flex-direction: column;">
-                            <label style="margin-bottom: 0.5rem; font-weight: 600; color: var(--dark-blue);">Service Type *</label>
-                            <select name="service-type" required style="padding: 12px 15px; border: 2px solid #e1e8f0; border-radius: 10px; font-size: 1rem;">
-                                <option value="">Select service type</option>
+                            <label style="margin-bottom: 0.5rem; font-weight: 600; color: var(--dark-blue);">Service Option *</label>
+                            <select name="service-option" id="service-option" required onchange="toggleQuoteFields()" style="padding: 12px 15px; border: 2px solid #e1e8f0; border-radius: 10px; font-size: 1rem;">
+                                <option value="">Select service option</option>
+                                <option value="pay-per-page">Pay Per Page ($24.95/page) - Instant Processing</option>
+                                <option value="word-quote">Request Quote ($0.08/word) - Same Day Response</option>
+                                <option value="document-submission">Submit Documents for Custom Quote - Same Day Response</option>
+                            </select>
+                        </div>
+                        
+                        <div style="display: flex; flex-direction: column;">
+                            <label style="margin-bottom: 0.5rem; font-weight: 600; color: var(--dark-blue);">Translation Type *</label>
+                            <select name="translation-type" required style="padding: 12px 15px; border: 2px solid #e1e8f0; border-radius: 10px; font-size: 1rem;">
+                                <option value="">Select translation type</option>
                                 <option value="uscis-immigration">USCIS Immigration Translation</option>
                                 <option value="canadian-immigration">Canadian Immigration Translation</option>
                                 <option value="university-transcripts">University Transcript Translation</option>
                                 <option value="general-certified">General Certified Translation</option>
-                                <option value="custom-quote">Custom Quote Request</option>
+                                <option value="legal-documents">Legal Document Translation</option>
+                                <option value="medical-records">Medical Record Translation</option>
                             </select>
                         </div>
                         
@@ -905,6 +916,8 @@
                                 <option value="italian">Italian</option>
                                 <option value="japanese">Japanese</option>
                                 <option value="korean">Korean</option>
+                                <option value="hindi">Hindi</option>
+                                <option value="vietnamese">Vietnamese</option>
                                 <option value="other">Other Language</option>
                             </select>
                         </div>
@@ -919,35 +932,107 @@
                             </select>
                         </div>
                         
-                        <div style="display: flex; flex-direction: column;">
-                            <label style="margin-bottom: 0.5rem; font-weight: 600; color: var(--dark-blue);">Number of Pages</label>
-                            <select name="page-count" style="padding: 12px 15px; border: 2px solid #e1e8f0; border-radius: 10px; font-size: 1rem;">
-                                <option value="">Select page count</option>
-                                <option value="1">1 page - $24.95</option>
-                                <option value="2">2 pages - $49.90</option>
-                                <option value="3">3 pages - $74.85</option>
-                                <option value="4">4 pages - $99.80</option>
-                                <option value="5">5 pages - $124.75</option>
-                                <option value="6+">6+ pages - Custom quote</option>
-                            </select>
+                        <!-- Per-Page Payment Fields -->
+                        <div id="page-fields" style="display: none; grid-column: 1 / -1;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                                <div style="display: flex; flex-direction: column;">
+                                    <label style="margin-bottom: 0.5rem; font-weight: 600; color: var(--dark-blue);">Number of Pages *</label>
+                                    <select name="page-count" id="page-count" onchange="calculateTotal()" style="padding: 12px 15px; border: 2px solid #e1e8f0; border-radius: 10px; font-size: 1rem;">
+                                        <option value="">Select page count</option>
+                                        <option value="1">1 page - $24.95</option>
+                                        <option value="2">2 pages - $49.90</option>
+                                        <option value="3">3 pages - $74.85</option>
+                                        <option value="4">4 pages - $99.80</option>
+                                        <option value="5">5 pages - $124.75</option>
+                                        <option value="6+">6+ pages - Custom quote</option>
+                                    </select>
+                                </div>
+                                
+                                <div style="display: flex; flex-direction: column;">
+                                    <label style="margin-bottom: 0.5rem; font-weight: 600; color: var(--dark-blue);">Delivery Speed</label>
+                                    <select name="delivery-speed" id="delivery-speed" onchange="calculateTotal()" style="padding: 12px 15px; border: 2px solid #e1e8f0; border-radius: 10px; font-size: 1rem;">
+                                        <option value="standard">Standard (24 hours) - $24.95/page</option>
+                                        <option value="rush">Rush (12 hours) - $37.43/page</option>
+                                        <option value="same-day">Same Day (2-6 hours) - $49.90/page</option>
+                                    </select>
+                                </div>
+                                
+                                <div style="display: flex; flex-direction: column;">
+                                    <label style="margin-bottom: 0.5rem; font-weight: 600; color: var(--dark-blue);">Additional Services</label>
+                                    <select name="additional-services" id="additional-services" onchange="calculateTotal()" style="padding: 12px 15px; border: 2px solid #e1e8f0; border-radius: 10px; font-size: 1rem;">
+                                        <option value="none">Standard Certification</option>
+                                        <option value="notarized">Notarized (+$15)</option>
+                                        <option value="apostille">Apostille Ready (+$10)</option>
+                                        <option value="express-mail">Express Mail (+$15)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Price Display -->
+                            <div id="price-display" style="display: none; background: var(--cyan-blue); color: white; padding: 1.5rem; border-radius: 10px; text-align: center; font-size: 1.3rem; font-weight: bold; margin-top: 1.5rem;">
+                                <span id="total-price">Total: $0.00</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Word-based Quote Fields -->
+                        <div id="word-fields" style="display: none; grid-column: 1 / -1;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                                <div style="display: flex; flex-direction: column;">
+                                    <label style="margin-bottom: 0.5rem; font-weight: 600; color: var(--dark-blue);">Estimated Word Count</label>
+                                    <select name="word-count" style="padding: 12px 15px; border: 2px solid #e1e8f0; border-radius: 10px; font-size: 1rem;">
+                                        <option value="">Select estimated word count</option>
+                                        <option value="under-250">Under 250 words (~$20)</option>
+                                        <option value="250-500">250-500 words (~$20-40)</option>
+                                        <option value="500-1000">500-1,000 words (~$40-80)</option>
+                                        <option value="1000-2500">1,000-2,500 words (~$80-200)</option>
+                                        <option value="2500-5000">2,500-5,000 words (~$200-400)</option>
+                                        <option value="over-5000">Over 5,000 words (custom quote)</option>
+                                    </select>
+                                </div>
+                                
+                                <div style="display: flex; flex-direction: column;">
+                                    <label style="margin-bottom: 0.5rem; font-weight: 600; color: var(--dark-blue);">Document Complexity</label>
+                                    <select name="complexity" style="padding: 12px 15px; border: 2px solid #e1e8f0; border-radius: 10px; font-size: 1rem;">
+                                        <option value="standard">Standard Text ($0.08/word)</option>
+                                        <option value="technical">Technical/Specialized ($0.10/word)</option>
+                                        <option value="legal">Legal/Medical ($0.12/word)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Document Submission Fields -->
+                        <div id="document-fields" style="display: none; grid-column: 1 / -1;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                                <div style="display: flex; flex-direction: column;">
+                                    <label style="margin-bottom: 0.5rem; font-weight: 600; color: var(--dark-blue);">Upload Documents</label>
+                                    <input type="file" name="documents" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt" style="padding: 12px 15px; border: 2px solid #e1e8f0; border-radius: 10px; font-size: 1rem;">
+                                    <small style="color: #666; margin-top: 0.5rem;">PDF, Word, Images, Text files. Max 10MB per file.</small>
+                                </div>
+                                
+                                <div style="display: flex; flex-direction: column;">
+                                    <label style="margin-bottom: 0.5rem; font-weight: 600; color: var(--dark-blue);">Quote Type</label>
+                                    <select name="quote-type" style="padding: 12px 15px; border: 2px solid #e1e8f0; border-radius: 10px; font-size: 1rem;">
+                                        <option value="word-based">Word-based pricing ($0.08/word)</option>
+                                        <option value="project-based">Project-based estimate</option>
+                                        <option value="volume-discount">Volume/bulk discount</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                         
                         <div style="display: flex; flex-direction: column;">
-                            <label style="margin-bottom: 0.5rem; font-weight: 600; color: var(--dark-blue);">Delivery Speed</label>
-                            <select name="delivery-speed" style="padding: 12px 15px; border: 2px solid #e1e8f0; border-radius: 10px; font-size: 1rem;">
-                                <option value="standard">Standard (24 hours) - $24.95/page</option>
-                                <option value="rush">Rush (12 hours) - $37.43/page</option>
-                                <option value="same-day">Same Day (2-6 hours) - $49.90/page</option>
-                            </select>
+                            <label style="margin-bottom: 0.5rem; font-weight: 600; color: var(--dark-blue);">Deadline (if urgent)</label>
+                            <input type="date" name="deadline" style="padding: 12px 15px; border: 2px solid #e1e8f0; border-radius: 10px; font-size: 1rem;">
                         </div>
                         
                         <div style="display: flex; flex-direction: column; grid-column: 1 / -1;">
-                            <label style="margin-bottom: 0.5rem; font-weight: 600; color: var(--dark-blue);">Project Details</label>
-                            <textarea name="project-details" style="padding: 12px 15px; border: 2px solid #e1e8f0; border-radius: 10px; font-size: 1rem; min-height: 120px; resize: vertical;" placeholder="Please describe your translation project, document types, any special requirements, or deadlines..."></textarea>
+                            <label style="margin-bottom: 0.5rem; font-weight: 600; color: var(--dark-blue);">Project Details & Special Requirements</label>
+                            <textarea name="project-details" style="padding: 12px 15px; border: 2px solid #e1e8f0; border-radius: 10px; font-size: 1rem; min-height: 120px; resize: vertical;" placeholder="Please describe your translation project, document types, any special formatting requirements, certification needs, or deadlines. For document submissions, include details about the intended use (USCIS, university, etc.)..."></textarea>
                         </div>
                     </div>
                     
-                    <button type="submit" style="background: linear-gradient(135deg, var(--dark-blue) 0%, var(--cyan-blue) 50%, var(--green) 100%); color: white; border: none; padding: 15px 40px; border-radius: 50px; font-size: 1.1rem; font-weight: 600; cursor: pointer; width: 100%; transition: transform 0.3s ease;">Get Professional Translation Quote</button>
+                    <button type="submit" id="submit-btn" style="background: linear-gradient(135deg, var(--dark-blue) 0%, var(--cyan-blue) 50%, var(--green) 100%); color: white; border: none; padding: 15px 40px; border-radius: 50px; font-size: 1.1rem; font-weight: 600; cursor: pointer; width: 100%; transition: transform 0.3s ease;">Get Professional Translation Quote</button>
                 </form>
             </div>
         </div>
@@ -1044,6 +1129,87 @@
         document.querySelector('form').addEventListener('submit', function(e) {
             console.log('Translation quote form submitted');
         });
+        
+        // Dynamic form handling
+        function toggleQuoteFields() {
+            const serviceOption = document.getElementById('service-option').value;
+            const pageFields = document.getElementById('page-fields');
+            const wordFields = document.getElementById('word-fields');
+            const documentFields = document.getElementById('document-fields');
+            const submitBtn = document.getElementById('submit-btn');
+            
+            // Hide all conditional fields
+            pageFields.style.display = 'none';
+            wordFields.style.display = 'none';
+            documentFields.style.display = 'none';
+            
+            if (serviceOption === 'pay-per-page') {
+                pageFields.style.display = 'block';
+                submitBtn.textContent = 'Pay Now & Start Translation';
+                
+            } else if (serviceOption === 'word-quote') {
+                wordFields.style.display = 'block';
+                submitBtn.textContent = 'Request Word-Based Quote ($0.08/word)';
+                
+            } else if (serviceOption === 'document-submission') {
+                documentFields.style.display = 'block';
+                submitBtn.textContent = 'Submit Documents for Same-Day Quote';
+                
+            } else {
+                submitBtn.textContent = 'Get Professional Translation Quote';
+            }
+            
+            calculateTotal();
+        }
+
+        // Price calculator for per-page payments
+        function calculateTotal() {
+            const serviceOption = document.getElementById('service-option').value;
+            
+            if (serviceOption === 'pay-per-page') {
+                const pageCount = document.getElementById('page-count').value;
+                const deliverySpeed = document.getElementById('delivery-speed').value;
+                const additionalServices = document.getElementById('additional-services').value;
+                const priceDisplay = document.getElementById('price-display');
+                
+                let basePrice = 0;
+                let deliveryMultiplier = 1;
+                let addOns = 0;
+                
+                // Base price calculation
+                if (pageCount === '1') basePrice = 24.95;
+                else if (pageCount === '2') basePrice = 49.90;
+                else if (pageCount === '3') basePrice = 74.85;
+                else if (pageCount === '4') basePrice = 99.80;
+                else if (pageCount === '5') basePrice = 124.75;
+                else if (pageCount === '6+') {
+                    document.getElementById('total-price').textContent = 'Contact for Custom Quote';
+                    priceDisplay.style.display = 'block';
+                    return;
+                }
+                
+                // Delivery speed pricing
+                if (deliverySpeed === 'rush') {
+                    basePrice = basePrice * 1.5; // 50% increase
+                } else if (deliverySpeed === 'same-day') {
+                    basePrice = basePrice * 2; // 100% increase
+                }
+                
+                // Additional services
+                if (additionalServices === 'notarized') addOns += 15;
+                else if (additionalServices === 'apostille') addOns += 10;
+                else if (additionalServices === 'express-mail') addOns += 15;
+                
+                const total = basePrice + addOns;
+                
+                if (pageCount && pageCount !== '6+') {
+                    document.getElementById('total-price').textContent = `Total: ${total.toFixed(2)}`;
+                    priceDisplay.style.display = 'block';
+                } else {
+                    priceDisplay.style.display = 'none';
+                }
+            }
+        }
     </script>
 </body>
 </html>
