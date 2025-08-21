@@ -1,24 +1,62 @@
 import type { Context, Config } from "@netlify/functions";
 
 export default async (req: Request, context: Context) => {
+  // Add CORS headers
+  const headers = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS'
+  };
+
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 200,
+      headers
+    });
+  }
+
   // Only allow POST requests
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
       status: 405,
-      headers: { 'Content-Type': 'application/json' }
+      headers
     });
   }
 
   try {
+    // Check if Stripe key exists
+    if (!Netlify.env.STRIPE_SECRET_KEY) {
+      return new Response(JSON.stringify({ 
+        error: 'Stripe configuration missing' 
+      }), {
+        status: 500,
+        headers
+      });
+    }
+
     const stripe = require('stripe')(Netlify.env.STRIPE_SECRET_KEY);
-    const body = await req.json();
+    
+    let body;
+    try {
+      body = await req.json();
+    } catch (e) {
+      return new Response(JSON.stringify({ 
+        error: 'Invalid JSON in request body' 
+      }), {
+        status: 400,
+        headers
+      });
+    }
     
     const { 
       amount, 
       currency = 'usd', 
       customerEmail,
       customerName,
-      description = 'Corpus Localization Service'
+      description = 'Corpus Localization Service',
+      serviceType = 'translation'
     } = body;
 
     // Validate required fields
@@ -27,28 +65,45 @@ export default async (req: Request, context: Context) => {
         error: 'Missing required fields: amount and customerEmail' 
       }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers
+      });
+    }
+
+    // Validate amount is a number
+    const numAmount = parseFloat(amount);
+    if (isNaN(numAmount) || numAmount <= 0) {
+      return new Response(JSON.stringify({ 
+        error: 'Invalid amount provided' 
+      }), {
+        status: 400,
+        headers
       });
     }
 
     // Create payment intent
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Convert to cents
+      amount: Math.round(numAmount * 100), // Convert to cents
       currency: currency,
       description: description,
       receipt_email: customerEmail,
       metadata: {
         customerName: customerName || '',
-        service: 'corpus-localization'
-      }
+        service: serviceType,
+        website: 'corpuslocalization.com'
+      },
+      automatic_payment_methods: {
+        enabled: true,
+      },
     });
 
     return new Response(JSON.stringify({
       clientSecret: paymentIntent.client_secret,
-      paymentIntentId: paymentIntent.id
+      paymentIntentId: paymentIntent.id,
+      amount: paymentIntent.amount,
+      currency: paymentIntent.currency
     }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' }
+      headers
     });
 
   } catch (error) {
@@ -56,10 +111,10 @@ export default async (req: Request, context: Context) => {
     
     return new Response(JSON.stringify({
       error: 'Payment processing failed',
-      details: error.message
+      details: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers
     });
   }
 };
